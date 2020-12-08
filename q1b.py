@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as c
 
+"""
+intialising global variables
+"""
+
 maxEpochs = 2000
 N = 4
 costArr = []
@@ -18,6 +22,10 @@ B1 = np.random.normal(0,1, size=2)
 W2 = np.random.normal(0,1, size=(2,1))
 B2 = np.random.normal(0,1, size=1)
 
+"""
+function to get data from the file
+"""
+
 def loadInputData():
 	with open('spiral_train.dat','r') as f:
 		inputData = [i.strip().split(',') for i in f.readlines()]
@@ -25,16 +33,32 @@ def loadInputData():
 	inputData = inputData.astype(float)
 	return inputData 
 
+"""
+sigmoid function to get the sigmoid value
+"""
+
 def sigmoid(Z):
 	return 1 / (1 + np.exp(-Z))
+
+"""
+sigmoid dervitave function to get the sigmoid dervitive value
+"""
 
 def sigmoidDerivative(Z):
 	derSigmo = 1 / (1 + np.exp(-Z))
 	return derSigmo * (1 - derSigmo)
 
+"""
+softmax function will return the softmax of the given vector
+"""
+
 def softmax(X):
 	exp = np.exp(X - np.max(X))
 	return exp / exp.sum(axis=0, keepdims=True)
+
+"""
+forward function to forward pass the NN
+"""
 
 def forward(X,w1 = None, b1 = None, w2 = None, b2 = None):
 	global W1,B1,W2,B2
@@ -49,16 +73,28 @@ def forward(X,w1 = None, b1 = None, w2 = None, b2 = None):
 	z = [None,z1,z2]
 	return a,z
 
+"""
+To calculate the cross entropy loss in the function
+"""
+
 def calculateLoss(output,target):
 	global regParam
 	crossEntropy = -(np.mean(target * np.log(output.T)))*2
 	return crossEntropy
+
+"""
+to get the one hot enoding from the y array
+"""
 
 def oneHot(y, n_labels, dtype):
     mat = np.zeros((len(y), n_labels))
     for i, val in enumerate(y):
         mat[i, int(val)] = 1
     return mat.astype(dtype)    
+
+"""
+backward function to get the derivative change in weights an bias
+"""
 
 def backward(X,Y,a,z):
 	global W2,learningRate,regParam
@@ -71,10 +107,18 @@ def backward(X,Y,a,z):
 	dB1 = learningRate * np.sum(dz1,axis=1, keepdims=True)
 	return dW1,dB1,dW2,dB2
 
+"""
+to get the gradient change in every epoch
+"""
+
 def getGradientChange(X,Y):
 	a,z = forward(X)
 	dW1,dB1,dW2,dB2 = backward(X,Y,a,z)
 	return dW1,dB1,dW2,dB2
+
+"""
+to plot the scatter graph ans decision boundary
+"""
 
 def plotScatterData(X,Y):
 	xData = X[:, 0]
@@ -102,6 +146,10 @@ def plotScatterData(X,Y):
 	plt.savefig("q1bscatter.png")
 	plt.close()
 
+"""
+train function to train the model for a given number of epochs
+"""
+
 def train(X,y_enc):
 	global W1,B1,W2,B2
 	costArr = [0 for i in range(maxEpochs)] 
@@ -124,6 +172,10 @@ def train(X,y_enc):
 	plt.savefig("q1blossepoch.png")
 	plt.close()
 
+"""
+predict function to call the compute the accuracy of the model with the updated weights
+"""
+
 def predict(X , Y):
 	global W1,B1,W2,B2
 	correct = 0
@@ -133,6 +185,10 @@ def predict(X , Y):
 		if(Y[i] == a2[i].argmax()):
 			correct += 1
 	print("Final Accuracy: " + str((correct/len(a2))*100)+"%")
+
+"""
+main function to start the training and initialise the variables
+"""
 
 def main():
 	global N,learningRate,W1,B1,W2,B2

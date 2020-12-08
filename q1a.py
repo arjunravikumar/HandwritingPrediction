@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""
+intialising global variables
+"""
+
 maxEpochs = 1000
 N = 4
 costArr = []
@@ -17,6 +21,10 @@ B1 = np.random.normal(0,1, size=2)
 W2 = np.random.normal(0,1, size=(2,1))
 B2 = np.random.normal(0,1, size=1)
 
+"""
+function to get data from the file
+"""
+
 def loadDataFromFile():
 	with open('xor.dat','r') as file:
 		inputData = [s.strip().split(',') for s in file.readlines()]
@@ -24,21 +32,42 @@ def loadDataFromFile():
 	inputData = inputData.astype(int)
 	return inputData 
 
+"""
+sigmoid function to get the sigmoid value
+"""
+
 def sigmoid(Z):
 	return 1 / (1 + np.exp(-Z))
+
+"""
+sigmoid dervitave function to get the sigmoid dervitive value
+"""
 
 def sigmoidDerivative(Z):
 	derSigmo = 1 / (1 + np.exp(-Z))
 	return derSigmo * (1 - derSigmo)
+
+"""
+this function will reshape the weights and the bias to the original shape
+input will be 1D array output will be 2D array
+"""
 
 def reshapeWtBs(w,b,orgW,orgB):
 	w = w.reshape(orgW.shape)
 	b = b.reshape(orgB.shape)
 	return w,b
 
+"""
+softmax function will return the softmax of the given vector
+"""
+
 def softmax(X):
 	exp = np.exp(X - np.max(X))
 	return exp / exp.sum(axis=0, keepdims=True)
+
+"""
+forward function to forward pass the NN
+"""
 
 def forward(X,w1 = None, b1 = None, w2 = None, b2 = None):
 	global W1,B1,W2,B2
@@ -53,16 +82,28 @@ def forward(X,w1 = None, b1 = None, w2 = None, b2 = None):
 	z = [None,z1,z2]
 	return a,z
 
+"""
+To calculate the cross entropy loss in the function
+"""
+
 def calculateLoss(output,target):
 	global regParam
 	crossEntropy = -(np.mean(target * np.log(output.T)))*2
 	return crossEntropy
+
+"""
+to get the one hot enoding from the y array
+"""
 
 def oneHot(y, n_labels, dtype):
     mat = np.zeros((len(y), n_labels))
     for i, val in enumerate(y):
         mat[i, val] = 1
     return mat.astype(dtype)    
+
+"""
+backward function to get the derivative change in weights an bias
+"""
 
 def backward(X,Y,a,z):
 	global W2,learningRate,regParam
@@ -75,10 +116,18 @@ def backward(X,Y,a,z):
 	dB1 = learningRate * np.sum(dz1,axis=1, keepdims=True)
 	return dW1,dB1,dW2,dB2
 
+"""
+to get the gradient change in every epoch
+"""
+
 def getGradientChange(X,Y):
 	a,z = forward(X)
 	dW1,dB1,dW2,dB2 = backward(X,Y,a,z)
 	return dW1,dB1,dW2,dB2
+
+"""
+Gradient check function to get the numeric gradient change to compare with the analytical gradient change
+"""
 
 def gradientCheck(xloc,yloc,epsilon = 1e-4):
 	global W1,B1,W2,B2
@@ -111,6 +160,10 @@ def gradientCheck(xloc,yloc,epsilon = 1e-4):
 	dw2,db2 = reshapeWtBs(w = dwt2, b = dbs2, orgW = W2,orgB = B2)
 	return dw1,db1,dw2,db2
 
+"""
+train function to train the model for a given number of epochs
+"""
+
 def train(X,y_enc):
 	global W1,B1,W2,B2
 	costArr = [0 for i in range(maxEpochs)] 
@@ -133,6 +186,10 @@ def train(X,y_enc):
 	plt.savefig("lossepochq1a.png")
 	plt.close()
 
+"""
+function to compare the analytic and number gradeints and then start to train the model if both of them are correct
+"""
+
 def gradientComparison(X,Y):
 	global W1,B1,W2,B2,N
 	N, D = X.shape
@@ -152,6 +209,7 @@ def gradientComparison(X,Y):
 		print('correct',difference)
 	else:
 		print('incorrect',difference)
+		return
 
 	print('Gradient checking for weight2 is ',end = "")
 	numerator = np.linalg.norm(dAW2 - dNW2)
@@ -161,6 +219,7 @@ def gradientComparison(X,Y):
 		print('correct',difference)
 	else:
 		print('incorrect',difference)
+		return
 
 	print('Gradient checking for bias1 is ',end = "")
 	numerator = np.linalg.norm(dAB1 - dNB1)
@@ -170,6 +229,7 @@ def gradientComparison(X,Y):
 		print('correct',difference)
 	else:
 		print('incorrect',difference)
+		return
 
 	print('Gradient checking for bias2 is ',end = "")
 	numerator = np.linalg.norm(dAB2 - dNB2)
@@ -179,12 +239,17 @@ def gradientComparison(X,Y):
 		print('correct',difference)
 	else:
 		print('incorrect',difference)
+		return
 	train(X,Y)
 	print('Trained model values:')
 	print("Weights layer1:" + str(W1))
 	print("Bias layer1:"+ str(B1))
 	print("Weights layer2:" + str(W2))
 	print("Bias layer2:"+ str(B2))
+
+"""
+predict function to call the compute the accuracy of the model with the updated weights
+"""
 
 def predict(X , Y):
 	global W1,B1,W2,B2
@@ -196,6 +261,10 @@ def predict(X , Y):
 		if(Y[i] == a2[i].argmax()):
 			correct += 1
 	print("Final Accuracy: " + str((correct/len(a2))*100)+"%")
+
+"""
+main function to start the whole program
+"""
 
 def main():
 	fileData = loadDataFromFile()

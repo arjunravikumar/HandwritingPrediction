@@ -1,0 +1,2 @@
+Please run q2Classifier if you want to test a MNIST test set using the already trained model. This will be much faster.
+All the training file and testing file locations are hardcoaded currently if needed please change them
